@@ -18,8 +18,6 @@ class AvailabilityService
     {
         $xmlContent = $this->flightProvider->fetchFlights($origin, $destination, $date);
 
-        
-
         if (strpos($xmlContent, '<soap:Envelope') !== false) {
             return $this->parseSoapXml($xmlContent);
         }
