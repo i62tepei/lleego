@@ -11,10 +11,8 @@ class AvailabilityServiceTest extends TestCase
 {
     public function testGetAvailability()
     {
-        // Crea un mock para FlightProvider
         $flightProviderMock = $this->createMock(FlightProvider::class);
 
-        // Configura el mock para que devuelva un array de Segment
         $segment1 = new Segment();
         $segment1->setOriginCode('MAD');
         $segment1->setOriginName('Madrid');
@@ -26,18 +24,17 @@ class AvailabilityServiceTest extends TestCase
         $segment1->setCompanyCode('IB');
         $segment1->setCompanyName('Iberia');
 
-        // Configura el mock para devolver 5 segmentos
         $flightProviderMock
             ->method('fetchFlights')
-            ->willReturn([$segment1, $segment1, $segment1, $segment1, $segment1]); // Simulando 5 segmentos
+            ->willReturn([$segment1, $segment1, $segment1, $segment1, $segment1]);
 
-        // Crea una instancia de AvailabilityService pasando el mock
         $service = new AvailabilityService($flightProviderMock);
 
-        // Llama al método que estás probando
         $result = $service->getAvailability('MAD', 'BIO', '2023-06-01');
 
-        // Verifica que el tamaño del resultado es 5
         $this->assertCount(5, $result);
+        $this->assertEquals('MAD', $result[0]->getOriginCode());
+        $this->assertEquals('BIO', $result[0]->getDestinationCode());
+        $this->assertEquals('Iberia', $result[0]->getCompanyName());
     }
 }

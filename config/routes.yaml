@@ -1,5 +1,10 @@
 controllers:
     resource:
-        path: ../src/Controller/
+        path: '../src/Controller/'
         namespace: App\Controller
     type: attribute
+
+api_avail:
+    path: /api/avail
+    controller: App\Controller\AvailabilityController::getAvailability
+    methods: GET

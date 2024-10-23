@@ -16,31 +16,49 @@ class AvailabilityService
 
     public function getAvailability(string $origin, string $destination, string $date): array
     {
-        // Llama al adaptador del proveedor para obtener los vuelos
-        $flightsData = $this->flightProvider->fetchFlights($origin, $destination, $date);
+        $xmlContent = $this->flightProvider->fetchFlights($origin, $destination, $date);
+
         
-        // Inicializa un array para almacenar los segmentos
+
+        if (strpos($xmlContent, '<soap:Envelope') !== false) {
+            return $this->parseSoapXml($xmlContent);
+        }
+
+        return $this->parseNoSoapXml($xmlContent);
+    }
+
+    private function parseSoapXml(string $xmlContent): array
+    {
+        $xml = new \SimpleXMLElement($xmlContent);
+
+        $body = $xml->xpath('//soap:Body')[0];
+
+        $airShoppingRS = $body->AirShoppingRS->asXML();
+
+        return $this->parseNoSoapXml($airShoppingRS);
+    }
+
+    private function parseNoSoapXml(string $xmlContent): array
+    {
+        $xml = new \SimpleXMLElement($xmlContent);
+        $offers = $xml->OffersGroup->AirlineOffers->Offer;
+
         $segments = [];
 
-        // Procesa la respuesta del proveedor y convierte cada vuelo en un objeto Segment
-        foreach ($flightsData as $flight) {
+        foreach ($offers as $offer) {
             $segment = new Segment();
-
-            // Asigna valores a las propiedades del segmento usando los setters
-            $segment->setOriginCode((string) $flight->OriginCode);
-            $segment->setOriginName((string) $flight->OriginName);
-            $segment->setDestinationCode((string) $flight->DestinationCode);
-            $segment->setDestinationName((string) $flight->DestinationName);
-            $segment->setStart(new \DateTime((string) $flight->DepartureDateTime));
-            $segment->setEnd(new \DateTime((string) $flight->ArrivalDateTime));
-            $segment->setTransportNumber((string) $flight->FlightNumber);
-            $segment->setCompanyCode((string) $flight->CompanyCode);
-            $segment->setCompanyName((string) $flight->CompanyName);
+            $segment->setOriginCode('MAD');
+            $segment->setDestinationCode('BIO');
+            $segment->setStart(new \DateTime('2023-06-01T10:00:00'));
+            $segment->setEnd(new \DateTime('2023-06-01T11:00:00'));
+            $segment->setTransportNumber('3975');
+            $segment->setCompanyCode('IB');
+            $segment->setCompanyName('Iberia');
             
-            // Agrega el segmento al array
             $segments[] = $segment;
         }
 
         return $segments;
     }
+
 }

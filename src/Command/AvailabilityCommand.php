@@ -32,9 +32,9 @@ class AvailabilityCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $origin = $input->getArgument('origin');
+        $origin      = $input->getArgument('origin');
         $destination = $input->getArgument('destination');
-        $date = $input->getArgument('date');
+        $date        = $input->getArgument('date');
 
         $flights = $this->availabilityService->getAvailability($origin, $destination, $date);
 

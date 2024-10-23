@@ -16,7 +16,6 @@ class AvailabilityController
         $this->availabilityService = $availabilityService;
     }
 
-    #[Route('/api/avail', methods: ['GET'])]
     public function getAvailability(Request $request): JsonResponse
     {
         $origin = $request->query->get('origin');
