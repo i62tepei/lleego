@@ -39,24 +39,29 @@ class AvailabilityService
     private function parseNoSoapXml(string $xmlContent): array
     {
         $xml = new \SimpleXMLElement($xmlContent);
-        $offers = $xml->OffersGroup->AirlineOffers->Offer;
+
+        $flightSegments = $xml->DataLists->FlightSegmentList->FlightSegment;
 
         $segments = [];
 
-        foreach ($offers as $offer) {
+        foreach ($flightSegments as $flight) {
             $segment = new Segment();
-            $segment->setOriginCode('MAD');
-            $segment->setDestinationCode('BIO');
-            $segment->setStart(new \DateTime('2023-06-01T10:00:00'));
-            $segment->setEnd(new \DateTime('2023-06-01T11:00:00'));
-            $segment->setTransportNumber('3975');
-            $segment->setCompanyCode('IB');
-            $segment->setCompanyName('Iberia');
-            
+
+            $segment->setOriginCode((string) $flight->Departure->AirportCode);
+            $segment->setOriginName((string) $flight->Departure->AirportName);
+            $segment->setDestinationCode((string) $flight->Arrival->AirportCode);
+            $segment->setDestinationName((string) $flight->Arrival->AirportName);
+            $segment->setStart(new \DateTime((string) $flight->Departure->Date . ' ' . (string) $flight->Departure->Time));
+            $segment->setEnd(new \DateTime((string) $flight->Arrival->Date . ' ' . (string) $flight->Arrival->Time));
+            $segment->setTransportNumber((string) $flight->MarketingCarrier->FlightNumber);
+            $segment->setCompanyCode((string) $flight->MarketingCarrier->AirlineID);
+            $segment->setCompanyName((string) $flight->MarketingCarrier->Name);
+
             $segments[] = $segment;
         }
 
         return $segments;
     }
+
 
 }
